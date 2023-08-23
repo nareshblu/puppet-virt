@@ -55,7 +55,6 @@ Puppet::Type.type(:virt).provide(:libvirt) do
       printf "[NKA] virt-install arguments: #{args}"
       virtinstall args
     end
-
     resource.properties.each do |prop|
       if self.class.supports_parameter? :"#{prop.to_s}" and prop.to_s != 'ensure'
         eval "self.#{prop.to_s}=prop.should"
@@ -87,12 +86,10 @@ Puppet::Type.type(:virt).provide(:libvirt) do
       when :kvm then "--accelerate" #Must validate hardware support
     end
     arguments = ["--name", resource[:name], "--ram", resource[:memory], "--noautoconsole", "--force", "--virt-type", resource[:virt_type]]
-    
     if resource[:name].match(/ciscoftdv/)
       arguments.delete("--noautoconsole")
       arguments << ["--console","pty,target_type=serial"]
     end
-
     if !bootoninstall
       arguments << "--noreboot"
     end
@@ -108,11 +105,10 @@ Puppet::Type.type(:virt).provide(:libvirt) do
     if resource[:virt_type] == :qemu
             max_cpus = 16 # It is hardcoded to avoid the maxvcpus with qemu virtualization type
     else
-	    max_cpus = Facter.value('processorcount')
+            max_cpus = Facter.value('processorcount')
     end
 
     arguments << ["--vcpus=#{resource[:cpus]},maxvcpus=#{max_cpus}"]
-
     arguments << diskargs
     arguments << adddiskargs
 
@@ -132,7 +128,6 @@ Puppet::Type.type(:virt).provide(:libvirt) do
         fail "Only existing domain images importing and PXE boot are supported."
       end
     end
-
     arguments
   end
 
@@ -144,14 +139,14 @@ Puppet::Type.type(:virt).provide(:libvirt) do
         parameters.concat(",device=disk,bus=virtio,cache=none")
     end
     parameters.empty? ? [] : ["--disk", parameters]
+    return ["--disk", parameters]
   end
 
   def adddiskargs
     params = resource[:disk_path] if resource[:disk_path]
     params = params[0]
     parameters = []
-
-    if resource[:disk_path].empty?
+    if params.empty?
         return parameters
     end
 
