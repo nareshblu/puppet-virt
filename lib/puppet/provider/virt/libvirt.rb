@@ -146,7 +146,7 @@ Puppet::Type.type(:virt).provide(:libvirt) do
     params = resource[:disk_path] if resource[:disk_path]
     params = params[0]
     parameters = []
-    if params.empty?
+    if params.nil? || params.empty?
         return parameters
     end
 
