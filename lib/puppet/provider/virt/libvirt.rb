@@ -85,7 +85,17 @@ Puppet::Type.type(:virt).provide(:libvirt) do
       when :xen_paravirt then "--paravirt" #Must validate kernel support
       when :kvm then "--accelerate" #Must validate hardware support
     end
-    arguments = ["--name", resource[:name], "--ram", resource[:memory], "--noautoconsole", "--force", "--virt-type", resource[:virt_type]]
+    #arguments = ["--name", resource[:name], "--ram", resource[:memory], "--noautoconsole", "--force", "--virt-type", resource[:virt_type]]
+    ubuntu_version = `lsb_release -r -s`.to_i
+
+    if ubuntu_version >= 22
+      arguments = ["--name", resource[:name], "--ram", resource[:memory], "--noautoconsole", "--force", "--virt-type", resource[:virt_type], "--osinfo", "detect=on,require=off"]
+    else
+      arguments = ["--name", resource[:name], "--ram", resource[:memory], "--noautoconsole", "--force", "--virt-type", resource[:virt_type]]
+    end
+
+    # Print the final 'arguments' array
+    puts "Arguments: #{arguments}"
     if resource[:name].match(/ciscoftdv/)
       arguments.delete("--noautoconsole")
       arguments << ["--console","pty,target_type=serial"]
