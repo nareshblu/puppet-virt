@@ -89,7 +89,7 @@ Puppet::Type.type(:virt).provide(:libvirt) do
     ubuntu_version = `lsb_release -r -s`.to_i
 
     if ubuntu_version >= 22
-      arguments = ["--name", resource[:name], "--ram", resource[:memory], "--noautoconsole", "--force", "--virt-type", resource[:virt_type], "--osinfo", "detect=on,require=off"]
+      arguments = ["--name", resource[:name], "--memory", resource[:memory], "--noautoconsole", "--force", "--virt-type", resource[:virt_type], "--osinfo", "detect=on,require=off"]
     else
       arguments = ["--name", resource[:name], "--ram", resource[:memory], "--noautoconsole", "--force", "--virt-type", resource[:virt_type]]
     end
