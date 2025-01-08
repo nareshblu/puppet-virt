@@ -96,6 +96,23 @@ Puppet::Type.type(:virt).provide(:libvirt) do
 
     # Print the final 'arguments' array
     puts "Arguments: #{arguments}"
+
+    # Add Nexus-specific arguments
+    if resource[:name].match(/cisconexusnkv/)
+      puts "cisconexusnkv detected"
+
+      arguments.concat([
+        "--cpu", "host-passthrough",
+        "--boot", "loader=#{resource[:loader]},loader.readonly=no",
+        "--features", "acpi=on,apic=on",
+        "--controller", "type=sata,index=0",
+        "--disk", "path=#{resource[:base_image]},device=disk,bus=sata,format=qcow2,cache=writethrough",
+        "--disk", "path=#{resource[:config_image]},device=cdrom,bus=sata,readonly=yes",
+        "--serial", "pty",
+        "--console", "pty,target_type=serial",
+        "--check", "all=off",
+      ])
+    end
     if resource[:name].match(/ciscoftdv/)
       arguments.delete("--noautoconsole")
       arguments << ["--console","pty,target_type=serial"]
@@ -120,7 +137,9 @@ Puppet::Type.type(:virt).provide(:libvirt) do
 
     arguments << ["--vcpus=#{resource[:cpus]},maxvcpus=#{max_cpus}"]
     arguments << diskargs
-    arguments << adddiskargs
+    unless resource[:name].match(/cisconexusnkv/)
+      arguments << adddiskargs
+    end
 
     if resource[:boot_location]
       fail "To use 'boot_location', you need to specify the 'virt_path' parameter." if resource[:virt_path].nil?
@@ -138,6 +157,7 @@ Puppet::Type.type(:virt).provide(:libvirt) do
         fail "Only existing domain images importing and PXE boot are supported."
       end
     end
+    
     arguments
   end
 
@@ -147,6 +167,11 @@ Puppet::Type.type(:virt).provide(:libvirt) do
     parameters.concat(",format=qcow2," + resource[:disk_size]) if resource[:disk_size]
     if resource[:name].match(/ciscoftdv/)
         parameters.concat(",device=disk,bus=virtio,cache=none")
+    end
+    # Nexus-specific logic
+    debug "Resource name %s" % [resource[:name]]
+    if resource[:name].match(/cisconexusnkv/)
+      parameters.concat(",device=disk,bus=sata,cache=writethrough")
     end
     parameters.empty? ? [] : ["--disk", parameters]
     return ["--disk", parameters]
@@ -196,7 +221,7 @@ Puppet::Type.type(:virt).provide(:libvirt) do
     else
       nettype='virtio'
     end
-
+    
     case iface
     when nil
       network = ["--network", "network=default"]
