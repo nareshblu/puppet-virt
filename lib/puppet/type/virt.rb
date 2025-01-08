@@ -547,7 +547,18 @@ Image files must end with `*.img`, `*.qcow` or `*.qcow2`"
     `winxp`: Microsoft Windows XP (x86)
     `winxp64`: Microsoft Windows XP (x86_64)"
     end
-
+    newparam(:loader) do
+     desc "Specifies the path to the firmware loader (e.g., UEFI firmware)."
+    end
+  
+    newparam(:base_image) do
+     desc "Path to the base disk image for the VM."
+    end
+  
+    newparam(:config_image) do
+     desc "Path to the configuration ISO or disk for the VM."
+    end
+    
     newparam(:virt_type) do
       desc "Specify the guest virtualization type. Mandatory field.
   Available values:
