@@ -230,7 +230,7 @@ Puppet::Type.type(:virt).provide(:libvirt) do
     else
       iface.each { |iface| network << ["--network","bridge="+iface+",model="+nettype] if interface?(iface) }
     end
-    if resource[:name].match(/ciscoftdv/)
+    if resource[:name].match(/ciscoftdv|cisconexusnkv/)
       network.insert(1,["--network", "bridge=virbr0,model=virtio"])
     end
 
