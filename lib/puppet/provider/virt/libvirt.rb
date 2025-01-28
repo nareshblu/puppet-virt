@@ -51,6 +51,10 @@ Puppet::Type.type(:virt).provide(:libvirt) do
       debug "Virtualization type: %s" % [resource[:virt_type]]
 
       args = generalargs(bootoninstall) + cpumodel + network + graphic + bootargs
+      if resource[:name].match(/cisconexusnkv/)
+        args.delete("--vnc")
+        args.delete("--pxe")
+      end
       debug "[INFO] virt-install arguments: #{args}"
       printf "[NKA] virt-install arguments: #{args}"
       virtinstall args
@@ -106,11 +110,10 @@ Puppet::Type.type(:virt).provide(:libvirt) do
         "--boot", "loader=#{resource[:loader]},loader.readonly=no",
         "--features", "acpi=on,apic=on",
         "--controller", "type=sata,index=0",
-        "--disk", "path=#{resource[:base_image]},device=disk,bus=sata,format=qcow2,cache=writethrough",
-        "--disk", "path=#{resource[:config_image]},device=cdrom,bus=sata,readonly=yes",
         "--serial", "pty",
         "--console", "pty,target_type=serial",
         "--check", "all=off",
+        "--import"
       ])
     end
     if resource[:name].match(/ciscoftdv/)
