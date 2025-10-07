@@ -235,8 +235,6 @@ Puppet::Type.type(:virt).provide(:libvirt) do
     end
     if resource[:name].match(/ciscoftdv/)
       network.insert(1,["--network", "bridge=virbr0,model=virtio"])
-    elsif resource[:name].match(/cisconexusnkv/)
-      network.insert(1, ["--network", "bridge=virbr0,model=e1000"])
     end
 
     macs = resource[:macaddrs]
