@@ -51,7 +51,7 @@ Puppet::Type.type(:virt).provide(:libvirt) do
       debug "Virtualization type: %s" % [resource[:virt_type]]
 
       args = generalargs(bootoninstall) + cpumodel + network + graphic + bootargs
-      if resource[:name].match(/cisconexusnkv/)
+      if resource[:vm_type].match(/cisconexusnkv/)
         args.delete("--vnc")
         args.delete("--pxe")
       end
@@ -102,7 +102,7 @@ Puppet::Type.type(:virt).provide(:libvirt) do
     puts "Arguments: #{arguments}"
 
     # Add Nexus-specific arguments
-    if resource[:name].match(/cisconexusnkv/)
+    if resource[:vm_type].match(/cisconexusnkv/)
       puts "cisconexusnkv detected"
 
       arguments.concat([
@@ -116,7 +116,7 @@ Puppet::Type.type(:virt).provide(:libvirt) do
         "--import"
       ])
     end
-    if resource[:name].match(/ciscoftdv/)
+    if resource[:vm_type].match(/ciscoftdv/)
       arguments.delete("--noautoconsole")
       arguments << ["--console","pty,target_type=serial"]
     end
@@ -140,7 +140,7 @@ Puppet::Type.type(:virt).provide(:libvirt) do
 
     arguments << ["--vcpus=#{resource[:cpus]},maxvcpus=#{max_cpus}"]
     arguments << diskargs
-    unless resource[:name].match(/cisconexusnkv/)
+    unless resource[:vm_type].match(/cisconexusnkv/)
       arguments << adddiskargs
     end
 
@@ -168,12 +168,12 @@ Puppet::Type.type(:virt).provide(:libvirt) do
     parameters = ""
     parameters = resource[:virt_path] if resource[:virt_path]
     parameters.concat(",format=qcow2," + resource[:disk_size]) if resource[:disk_size]
-    if resource[:name].match(/ciscoftdv/)
+    if resource[:vm_type].match(/ciscoftdv/)
         parameters.concat(",device=disk,bus=virtio,cache=none")
     end
     # Nexus-specific logic
     debug "Resource name %s" % [resource[:name]]
-    if resource[:name].match(/cisconexusnkv/)
+    if resource[:vm_type].match(/cisconexusnkv/)
       parameters.concat(",device=disk,bus=sata,cache=writethrough")
     end
     parameters.empty? ? [] : ["--disk", parameters]
@@ -233,7 +233,7 @@ Puppet::Type.type(:virt).provide(:libvirt) do
     else
       iface.each { |iface| network << ["--network","bridge="+iface+",model="+nettype] if interface?(iface) }
     end
-    if resource[:name].match(/ciscoftdv/)
+    if resource[:vm_type].match(/ciscoftdv/)
       network.insert(1,["--network", "bridge=virbr0,model=virtio"])
     end
 

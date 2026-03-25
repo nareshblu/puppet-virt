@@ -558,7 +558,11 @@ Image files must end with `*.img`, `*.qcow` or `*.qcow2`"
     newparam(:config_image) do
      desc "Path to the configuration ISO or disk for the VM."
     end
-    
+
+    newparam(:vm_type) do
+     desc "Type of VM (e.g., cisconexusnkv, ciscoftdv, etc.) used for provider-specific logic"
+    end
+
     newparam(:virt_type) do
       desc "Specify the guest virtualization type. Mandatory field.
   Available values:
